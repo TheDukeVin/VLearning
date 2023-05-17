@@ -1,8 +1,8 @@
 
 /*
 Compilation
-g++ -std=c++11 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp matrix_state.cpp matrix_type.cpp
-g++ -std=c++11 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp dummypoker_state.cpp dummypoker_type.cpp
+g++ -std=c++11 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp matrix_state.cpp
+g++ -std=c++11 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp snake_state.cpp
 */
 
 #include <iostream>
@@ -20,22 +20,168 @@ using namespace std;
 
 int sampleDist(double* dist, int N);
 
+// 2-player Snake game
+
+// Note: there are conflicting variable names here including
+/*
+numAgents/NUM_AGENT
+maxTime/TIME_HORIZON
+numActions/NUM_ACTION
+validAgentAction/validAction - the two arguments are flipped.
+*/
+/*
+const int numAgents = 2; //repeat - should fix
+const int NUM_AGENT = 2;
+
+const int boardx = 4;
+const int boardy = 4;
+
+const int maxTime = 20; //repeat - should fix
+const int TIME_HORIZON = 20;
+
+const int numAgentActions = 4;
+const int numChanceActions = (boardx * boardy);
+// const int maxNumActions = (boardx * boardy);
+
+const int LosePenalty = 5;
+
+// const int numActions[2] = {numAgentActions, numChanceActions};
+const int NUM_ACTIONS = numAgentActions; //repeat - should fix
+
+const int dir[4][2] = {{0,1}, {1,0}, {0,-1}, {-1,0}};
+
+const double MAX_REWARD = 10;
+
+class Pos{
+public:
+    int x, y;
+
+    Pos(){
+        x = y = -1;
+    }
+
+    Pos(int _x, int _y){
+        x = _x; y = _y;
+    }
+
+    bool inBounds(){
+        return 0 <= x && x < boardx && 0 <= y && y < boardy;
+    }
+
+    Pos shift(int d){
+        return Pos(x + dir[d][0], y + dir[d][1]);
+    }
+
+    friend bool operator == (const Pos& p, const Pos& q){
+        return (p.x == q.x) && (p.y == q.y);
+    }
+
+    friend bool operator != (const Pos& p, const Pos& q){
+        return (p.x != q.x) || (p.y != q.y);
+    }
+};
+
+class Snake{
+public:
+    int size;
+    Pos head;
+    Pos tail;
+
+    Snake(){
+        size = -1;
+    }
+
+    friend bool operator != (const Snake& r, const Snake& s){
+        return (r.size != s.size) || (r.head != s.head) || (r.tail != s.tail);
+    }
+};
+
+// Class to encode action info at a time step
+class Action{
+public:
+    int actionType;
+    int agentActions[numAgents];
+    int chanceAction;
+
+    int actionID(){
+        if(actionType == 0) return agentActions[0] + agentActions[1] * numAgentActions;
+        return chanceAction;
+    }
+};
+
+class State{
+public:
+    int timer;
+    int actionType; // 0 = action state, 1 = reaction state.
+
+    Snake snakes[numAgents];
+    Pos apple;
+
+     // -1 = not snake. 0 to 3 = snake unit pointing to next unit. 4 = head.
+     // +5k for agent k
+    int grid[boardx][boardy];
+
+    void setGridValue(Pos p, int val);
+    int getGridValue(Pos p);
+
+    bool validChanceAction(int pos);
+    void chanceAction(int actionIndex);
+
+    
+
+    bool endState;
+
+    int actions[NUM_AGENT];
+
+    State();
+
+    bool validAction(int action, int playerID);
+
+    // reads actions, modifies reward array.
+    // changes state info and endState.
+    void makeAction(double* reward);
+
+    string toString();
+
+    bool equals(const State& s) const;
+    size_t hashValue() const;
+
+    friend bool operator == (const State& t, const State& s){
+        return t.equals(s);
+    }
+};
+
+class StateHash{
+public:
+    size_t operator()(const State& env) const {
+        return env.hashValue();
+    }
+};
+*/
+
+
 // Matrix game
 
-/*
+
 
 const int TIME_HORIZON = 1;
 
 const int NUM_AGENT = 2;
 
-const double MAX_REWARD = 4;
+const double MAX_REWARD = 10;
 
 const int NUM_ACTIONS = 3;
 
+// const double matrix[NUM_ACTIONS][NUM_ACTIONS] = {
+//     {0, 1, 3},
+//     {1, 4, 0},
+//     {2, 0, 2}
+// };
+
 const double matrix[NUM_ACTIONS][NUM_ACTIONS] = {
-    {0, 1, 3},
-    {1, 4, 0},
-    {2, 0, 2}
+    {0, 10, 10},
+    {1,  0, 10},
+    {1,  1,  0}
 };
 
 // const double matrix[NUM_ACTIONS][NUM_ACTIONS] = {
@@ -44,29 +190,16 @@ const double matrix[NUM_ACTIONS][NUM_ACTIONS] = {
 //     {1, -1, 0}
 // };
 
-class Type{
-public:
-    Type(){}
-    string toString() const;
-    size_t hashValue() const ;
-    bool equals(const Type& t) const;
-
-    friend bool operator == (const Type& t, const Type& s){
-        return t.equals(s);
-    }
-};
-
 class State{
 public:
     bool endState;
 
-    Type revealed_types[NUM_AGENT];
     int actions[NUM_AGENT];
 
     State();
 
     bool validAction(int action, int playerID);
-    void makeAction(double* reward); // reads actions and revealed_types, modifies reward array.
+    void makeAction(double* reward); // reads actions, modifies reward array.
 
     string toString() const;
 
@@ -75,102 +208,6 @@ public:
 
     friend bool operator == (const State& t, const State& s){
         return t.equals(s);
-    }
-};
-
-*/
-
-// Dummy's poker
-
-
-
-const int deckSize = 6;
-const int maxBet = 10;
-
-
-// TIME_HORIZON = maximum game length.
-// Here, TIME_HORIZON = NUM_AGENT * (1 + ceil log2(maxBet))
-const int TIME_HORIZON = 15;
-
-const int NUM_AGENT = 3;
-
-const double MAX_REWARD = 20;
-
-const int NUM_ACTIONS = maxBet + 1;
-
-// Actions:
-// 0 = fold
-// k>0 = call k or raise to k
-
-// Nonacting players use action 0
-
-const int FOLD = 0;
-
-// large prime for hashing
-const int M = 1000000019;
-
-class Type{
-public:
-    int cardVal;
-
-    Type(){}
-    Type(int val);
-    string toString();
-
-    friend bool operator == (const Type& t, const Type& s){
-        return t.equals(s);
-    }
-    size_t hashValue() const ;
-    bool equals(const Type& t) const;
-};
-
-class State{
-private:
-    int committed_chips[NUM_AGENT];
-    bool folded[NUM_AGENT];
-    int currTime;
-
-    
-    // Events:
-    // Positive number = bet of that size (starts at 1).
-    // 0 = fold
-    // -1 = not yet set.
-    
-    int topBet();
-
-    int event_seq[TIME_HORIZON]; // sequence of actions taken. default is -1.
-    int currPlayer; // 0, 1, 2.
-
-    void showdown(double* reward);
-
-public:
-    // State info
-    bool endState;
-
-    State();
-
-    Type revealed_types[NUM_AGENT];
-    int actions[NUM_AGENT];
-
-    bool validAction(int action, int playerID);
-    void makeAction(double* reward); // reads actions and revealed_types, modifies reward array.
-
-    string toString();
-
-    friend bool operator == (const State& t, const State& s){
-        return t.equals(s);
-    }
-
-    bool equals(const State& s) const;
-    size_t hashValue() const;
-};
-
-
-
-class TypeHash{
-public:
-    size_t operator()(const Type& t) const {
-        return t.hashValue();
     }
 };
 
@@ -181,15 +218,10 @@ public:
     }
 };
 
-unordered_set<Type, TypeHash> all_types();
-void init_type(Type* types);
-
-
 
 
 // VLearning algorithm
 
-unordered_set<State, StateHash> nextStates(State& s, int recAgent);
 unordered_set<State, StateHash> all_states();
 
 class AdvBandit{
@@ -202,30 +234,26 @@ private:
     double sumLoss[NUM_ACTIONS];
 
     double learnRate(){
-        //return (TIME_HORIZON+1)/(TIME_HORIZON+visitCount);
-        return 0.01;
+        // return sqrt((TIME_HORIZON+1.0)/(TIME_HORIZON+visitCount));
+        return 0.001;
     }
     double explorationRate(){
-        //return 1/sqrt(TIME_HORIZON+visitCount);
+        // return 1/sqrt(TIME_HORIZON+visitCount);
         return 0;
     }
+
     double lossWeight(){
-        // double prod = 1;
-        // for(int i=1; i<visitCount; i++){
-        //     prod *= 1 - (TIME_HORIZON+1)/(TIME_HORIZON+1+i);
-        // }
-        // return learnRate() / prod;
+        //return learnRate() / prod_learn;
         return 1;
     }
     double sampleSkew(){
-        return 1/sqrt(TIME_HORIZON+visitCount);
+        // return 1/sqrt(TIME_HORIZON+visitCount);
+        return 0;
     }
 
 public:
-    AdvBandit(){
-        value = 0;
-    }
-    AdvBandit(State& s_, int ag);
+    AdvBandit();
+    AdvBandit(State s_, int ag);
 
     double value;
     double actionProb[NUM_ACTIONS];
@@ -237,16 +265,10 @@ public:
 
 class VLearn{
 public:
-    unordered_map<State, unordered_map<Type, AdvBandit, TypeHash>, StateHash> policy[NUM_AGENT];
+    unordered_map<State, AdvBandit, StateHash> policy[NUM_AGENT];
 
     VLearn();
     void rollOut();
-    void train(int numIter);
-
-    void printGame();
-
-    void save(string outFile);
-    void load(string inFile);
 };
 
 #endif

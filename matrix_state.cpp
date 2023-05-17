@@ -30,3 +30,4 @@ bool State::equals(const State& s) const {
 size_t State::hashValue() const {
     return endState;
 }
+

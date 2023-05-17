@@ -1,21 +1,25 @@
 
 #include "vlearn.h"
 
-AdvBandit::AdvBandit(State& s_, int ag){
+AdvBandit::AdvBandit(){
+    value = 0;
+    for(int i=0; i<NUM_ACTIONS; i++){
+        actionProb[i] = -1;
+    }
+}
+
+AdvBandit::AdvBandit(State s_, int ag){
     s = s_;
     agentID = ag;
     numValidAction = 0;
     for(int i=0; i<NUM_ACTIONS; i++){
         validAction[i] = s.validAction(i, ag);
-        if(validAction[i]){
-            numValidAction ++;
-        }
+        numValidAction ++;
     }
     for(int i=0; i<NUM_ACTIONS; i++){
         if(validAction[i]){
             sumLoss[i] = 0;
             actionProb[i] = 1.0 / numValidAction;
-            aggPolicy[i] = 1.0 / numValidAction;
         }
         else{
             actionProb[i] = -1;
@@ -29,16 +33,14 @@ void AdvBandit::update(int action, double newValue){
     // Update value
     double lr = learnRate();
     double er = explorationRate();
-    double skew = sampleSkew();
-    double currWeight = lossWeight();
+    // double skew = sampleSkew();
+    // double currWeight = lossWeight();
+    // if(visitCount > 1) prod_learn *= 1 - lr;
     visitCount ++;
     value = (1 - lr) * value + lr * (newValue + er);
-    if(numValidAction == 1){
-        return;
-    }
     // Update policy
     double loss = 1 - newValue / MAX_REWARD;
-    sumLoss[action] += currWeight * loss / (actionProb[action] + skew);
+    sumLoss[action] += loss / (actionProb[action]);
 
     double minLoss = 1e+10;
     for(int i=0; i<NUM_ACTIONS; i++){
@@ -46,11 +48,8 @@ void AdvBandit::update(int action, double newValue){
     }
     double sum = 0;
     for(int i=0; i<NUM_ACTIONS; i++){
-        if(!validAction[i]){
-            actionProb[i] = -1;
-            continue;
-        }
-        actionProb[i] = exp(-skew / currWeight * (sumLoss[i] - minLoss));
+        if(!validAction[i]) continue;
+        actionProb[i] = exp(-lr * (sumLoss[i] - minLoss));
         sum += actionProb[i];
     }
     for(int i=0; i<NUM_ACTIONS; i++){
