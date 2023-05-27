@@ -14,22 +14,26 @@ AdvBandit::AdvBandit(State s_, int ag){
     numValidAction = 0;
     for(int i=0; i<NUM_ACTIONS; i++){
         validAction[i] = s.validAction(i, ag);
-        numValidAction ++;
+        if(validAction[i]) numValidAction ++;
     }
     for(int i=0; i<NUM_ACTIONS; i++){
         if(validAction[i]){
             sumLoss[i] = 0;
             actionProb[i] = 1.0 / numValidAction;
+            aggPolicy[i] = 0;
+            soleAction = i;
         }
         else{
             actionProb[i] = -1;
         }
     }
-    visitCount = 1;
+    assert(numValidAction > 0);
+    visitCount = 0;
     value = 0;
 }
 
 void AdvBandit::update(int action, double newValue){
+    // cout<<newValue<<' ';
     // Update value
     double lr = learnRate();
     double er = explorationRate();
@@ -38,8 +42,9 @@ void AdvBandit::update(int action, double newValue){
     // if(visitCount > 1) prod_learn *= 1 - lr;
     visitCount ++;
     value = (1 - lr) * value + lr * (newValue + er);
+    if(numValidAction == 1) return;
     // Update policy
-    double loss = 1 - newValue / MAX_REWARD;
+    double loss = 1-newValue / TIME_HORIZON;
     sumLoss[action] += loss / (actionProb[action]);
 
     double minLoss = 1e+10;
@@ -50,8 +55,10 @@ void AdvBandit::update(int action, double newValue){
     for(int i=0; i<NUM_ACTIONS; i++){
         if(!validAction[i]) continue;
         actionProb[i] = exp(-lr * (sumLoss[i] - minLoss));
+        // cout<<sumLoss[i]<<' ';
         sum += actionProb[i];
     }
+    // cout<<'\n';
     for(int i=0; i<NUM_ACTIONS; i++){
         if(!validAction[i]) continue;
         actionProb[i] /= sum;
@@ -61,5 +68,6 @@ void AdvBandit::update(int action, double newValue){
 }
 
 int AdvBandit::sampleAction(){
+    if(numValidAction == 1) return soleAction;
     return sampleDist(actionProb, NUM_ACTIONS);
 }
