@@ -1,13 +1,19 @@
 
 /*
 Compilation
-g++ -std=c++11 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp matrix.cpp
+g++ -std=c++11 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp matrix/matrix.cpp
 
-g++ -std=c++11 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp first.cpp
+g++ -std=c++11 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp escape/escape.cpp
+
+g++ -std=c++11 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp smat/smat.cpp
+
+g++ -std=c++11 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp chase/chase.cpp
 */
 
-#include "first.h"
-// #include "matrix.h"
+// #include "matrix/matrix.h"
+// #include "escape/escape.h"
+// #include "smat/smat.h"
+#include "chase/chase.h"
 
 #ifndef vlearn_h
 #define vlearn_h
@@ -31,9 +37,10 @@ class AdvBandit{
 private:
     State s;
     int agentID;
-    bool validAction[NUM_ACTIONS];
-    int numValidAction;
-    int soleAction;
+    // bool validAction[NUM_ACTIONS];
+    vector<int> validActions;
+    // int numValidAction;
+    // int soleAction;
     int visitCount;
     double sumLoss[NUM_ACTIONS];
 
@@ -73,6 +80,7 @@ public:
 
     VLearn();
     void rollOut();
+    void printGame();
 };
 
 #endif

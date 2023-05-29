@@ -9,27 +9,19 @@ AdvBandit::AdvBandit(){
 }
 
 AdvBandit::AdvBandit(State s_, int ag){
+    value = 0;
+    for(int i=0; i<NUM_ACTIONS; i++){
+        actionProb[i] = -1;
+    }
     s = s_;
     agentID = ag;
-    numValidAction = 0;
-    for(int i=0; i<NUM_ACTIONS; i++){
-        validAction[i] = s.validAction(i, ag);
-        if(validAction[i]) numValidAction ++;
+    validActions = s.validActions(ag);
+    for(auto a : validActions){
+        sumLoss[a] = 0;
+        actionProb[a] = 1.0 / validActions.size();
+        aggPolicy[a] = 0;
     }
-    for(int i=0; i<NUM_ACTIONS; i++){
-        if(validAction[i]){
-            sumLoss[i] = 0;
-            actionProb[i] = 1.0 / numValidAction;
-            aggPolicy[i] = 0;
-            soleAction = i;
-        }
-        else{
-            actionProb[i] = -1;
-        }
-    }
-    assert(numValidAction > 0);
     visitCount = 0;
-    value = 0;
 }
 
 void AdvBandit::update(int action, double newValue){
@@ -42,32 +34,30 @@ void AdvBandit::update(int action, double newValue){
     // if(visitCount > 1) prod_learn *= 1 - lr;
     visitCount ++;
     value = (1 - lr) * value + lr * (newValue + er);
-    if(numValidAction == 1) return;
+    if(validActions.size() == 1) return;
     // Update policy
     double loss = 1-newValue / TIME_HORIZON;
     sumLoss[action] += loss / (actionProb[action]);
 
     double minLoss = 1e+10;
-    for(int i=0; i<NUM_ACTIONS; i++){
-        if(validAction[i] && sumLoss[i] < minLoss) minLoss = sumLoss[i];
+    for(auto a : validActions){
+        if(sumLoss[a] < minLoss) minLoss = sumLoss[a];
     }
     double sum = 0;
-    for(int i=0; i<NUM_ACTIONS; i++){
-        if(!validAction[i]) continue;
-        actionProb[i] = exp(-lr * (sumLoss[i] - minLoss));
+    for(auto a : validActions){
+        actionProb[a] = exp(-lr * (sumLoss[a] - minLoss));
         // cout<<sumLoss[i]<<' ';
-        sum += actionProb[i];
+        sum += actionProb[a];
     }
     // cout<<'\n';
-    for(int i=0; i<NUM_ACTIONS; i++){
-        if(!validAction[i]) continue;
-        actionProb[i] /= sum;
-        assert(!isnan(actionProb[i]));
-        aggPolicy[i] = (aggPolicy[i] * (visitCount-1) + actionProb[i]) / visitCount;
+    for(auto a : validActions){
+        actionProb[a] /= sum;
+        assert(!isnan(actionProb[a]));
+        aggPolicy[a] = (aggPolicy[a] * (visitCount-1) + actionProb[a]) / visitCount;
     }
 }
 
 int AdvBandit::sampleAction(){
-    if(numValidAction == 1) return soleAction;
+    if(validActions.size() == 1) return validActions[0];
     return sampleDist(actionProb, NUM_ACTIONS);
 }

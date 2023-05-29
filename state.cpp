@@ -5,19 +5,15 @@ unordered_set<State, StateHash> nextStates(State& s, int recAgent){
     unordered_set<State, StateHash> states;
     if(recAgent == NUM_AGENT){
         double hold[NUM_AGENT];
-        State s_new = s;
-        // cout<<"Trying actions: ";
-        // for(int i=0; i<NUM_AGENT; i++){
-        //     cout<<s.actions[i]<<' ';
-        // }
-        // cout<<'\n';
-        s_new.makeAction(hold);
-        states.insert(s_new);
+        for(auto c : s.validChanceActions()){
+            State s_new = s;
+            s_new.makeAction(hold, c);
+            states.insert(s_new);
+        }
         return states;
     }
-    for(int i=0; i<NUM_ACTIONS; i++){
-        if(!s.validAction(i, recAgent)) continue;
-        s.actions[recAgent] = i;
+    for(auto a : s.validActions(recAgent)){
+        s.actions[recAgent] = a;
         for(auto t : nextStates(s, recAgent+1)){
             states.insert(t);
         }
