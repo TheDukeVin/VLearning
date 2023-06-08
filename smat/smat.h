@@ -26,8 +26,13 @@ const double reward_prob[NUM_ACTIONS][NUM_ACTIONS] = {
     {0.1, 0.6, 1.0}
 };
 
+const double rewardSpace[2] = {0, 1};
+
+const string actionNames[NUM_ACTIONS] = {"0", "1", "2"};
+
 class State{
 public:
+    int time;
     bool endState;
 
     int actions[NUM_AGENT];
@@ -41,11 +46,8 @@ public:
 
     string toString() const;
 
-    bool equals(const State& s) const;
-    size_t hashValue() const;
-
     friend bool operator == (const State& t, const State& s){
-        return t.equals(s);
+        return t.toString() == s.toString();
     }
 };
 

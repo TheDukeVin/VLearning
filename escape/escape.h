@@ -24,14 +24,17 @@ const int NUM_ACTIONS = 2;
 // Make sure rewards are normalized between 0 and 1.
 const double escReward = 1;
 const double catReward = -1;
+
 const double rewardSpace[2] = {-1, 1};
+
+const string actionNames[NUM_ACTIONS] = {"Stay", "Move"};
 
 class State{
 private:
-    int time;
     bool catchUsed;
 
 public:
+    int time;
     bool endState;
 
     int actions[NUM_AGENT];
@@ -44,11 +47,8 @@ public:
 
     string toString() const;
 
-    bool equals(const State& s) const;
-    size_t hashValue() const;
-
     friend bool operator == (const State& t, const State& s){
-        return t.equals(s);
+        return t.toString() == s.toString();
     }
 };
 

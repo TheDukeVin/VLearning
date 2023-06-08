@@ -36,6 +36,10 @@ const int NUM_CHANCE_ACTIONS = 4;
 
 const int dir[4][2] = {{0,1}, {1,0}, {0,-1}, {-1,0}};
 
+const double rewardSpace[2] = {0, 1};
+
+const string actionNames[NUM_ACTIONS] = {"Right", "Down", "Left", "Up"};
+
 class Pos{
 public:
     int r,c;
@@ -65,11 +69,11 @@ public:
 
 class State{
 private:
-    int time;
 
     Pos players[NUM_AGENT];
 
 public:
+    int time;
     bool endState;
 
     int actions[NUM_AGENT];
@@ -82,11 +86,8 @@ public:
 
     string toString() const;
 
-    bool equals(const State& s) const;
-    size_t hashValue() const;
-
     friend bool operator == (const State& t, const State& s){
-        return t.equals(s);
+        return t.toString() == s.toString();
     }
 };
 

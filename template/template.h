@@ -18,8 +18,13 @@ const int NUM_ACTIONS = 3;
 
 const int NUM_CHANCE_ACTIONS = 4;
 
+const double rewardSpace[2] = {0, 0};
+
+const string actionNames[NUM_ACTIONS] = {"Lorem", "Ipsum"};
+
 class State{
 public:
+    int time;
     bool endState;
 
     int actions[NUM_AGENT];
@@ -36,7 +41,7 @@ public:
     size_t hashValue() const;
 
     friend bool operator == (const State& t, const State& s){
-        return t.equals(s);
+        return t.toString() == s.toString();
     }
 };
 

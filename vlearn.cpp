@@ -41,14 +41,17 @@ void VLearn::printGame(){
         for(int i=0; i<NUM_AGENT; i++){
             cout<<"Agent "<<i<<" policy: ";
             for(auto a : traj[t].validActions(i)){
-                cout<<a<<"_"<<policy[i][traj[t]].actionProb[a]<<' ';
+                // cout<<a;
+                cout<<actionNames[a]; // OPTIONAL: print action name
+                cout<<"_"<<policy[i][traj[t]].actionProb[a]<<' ';
             }
             cout<<'\n';
         }
         cout<<"Actions: ";
         for(int i=0; i<NUM_AGENT; i++){
             traj[t+1].actions[i] = policy[i][traj[t]].sampleAction();
-            cout<<traj[t+1].actions[i]<<' ';
+            // cout<<traj[t+1].actions[i]<<' ';
+            cout<<actionNames[traj[t+1].actions[i]]<<' '; // OPTIONAL: print action name
         }
         cout<<'\n';
         traj[t+1].makeAction(reward);
@@ -62,4 +65,40 @@ void VLearn::printGame(){
         }
     }
     cout<<"\n\n";
+}
+
+void VLearn::save(string outFile){
+    ofstream fout(outFile);
+    for(int i=0; i<NUM_AGENT; i++){
+        for(auto s : all_states()){
+            if(s.endState) continue;
+            for(int j=0; j<NUM_ACTIONS; j++){
+                fout << policy[i][s].aggPolicy[j] << ' ';
+            }
+        }
+    }
+}
+
+void VLearn::load(string inFile){
+    ifstream fin(inFile);
+    for(int i=0; i<NUM_AGENT; i++){
+        for(auto s : all_states()){
+            if(s.endState) continue;
+            // Adjust for read/write precision loss
+            double sum = 0;
+            for(int j=0; j<NUM_ACTIONS; j++){
+                fin >> policy[i][s].actionProb[j];
+                if(policy[i][s].actionProb[j] >= 0){
+                    sum += policy[i][s].actionProb[j];
+                }
+            }
+
+            assert(abs(sum - 1) < 1e-03);
+            for(int j=0; j<NUM_ACTIONS; j++){
+                if(policy[i][s].actionProb[j] >= 0){
+                    policy[i][s].actionProb[j] /= sum;
+                }
+            }
+        }
+    }
 }

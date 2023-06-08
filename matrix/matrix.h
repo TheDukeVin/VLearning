@@ -16,9 +16,7 @@ const int TIME_HORIZON = 1;
 
 const int NUM_AGENT = 2;
 
-const double MAX_REWARD = 10;
-
-const int NUM_ACTIONS = 5;
+const int NUM_ACTIONS = 3;
 
 const int NUM_CHANCE_ACTIONS = 1;
 
@@ -34,22 +32,31 @@ const int NUM_CHANCE_ACTIONS = 1;
 //     {2, 0, 1}
 // };
 
+const double matrix[NUM_ACTIONS][NUM_ACTIONS] = {
+    { 0, -1,  1},
+    { 1,  0, -1},
+    {-1,  1,  0}
+};
+
+const double rewardSpace[2] = {-1, 1};
+
+const string actionNames[NUM_ACTIONS] = {"R", "P", "S"};
+
 // const double matrix[NUM_ACTIONS][NUM_ACTIONS] = {
-//     {10,  0,  0},
-//     { 9, 10,  0},
-//     { 9,  9, 10}
+//     { 1, -9, -9, -9, -9},
+//     { 0,  1, -9, -9, -9},
+//     { 0,  0,  1, -9, -9},
+//     { 0,  0,  0,  1, -9},
+//     { 0,  0,  0,  0,  1},
 // };
 
-const double matrix[NUM_ACTIONS][NUM_ACTIONS] = {
-    {10,  0,  0,  0,  0},
-    { 9, 10,  0,  0,  0},
-    { 9,  9, 10,  0,  0},
-    { 9,  9,  9, 10,  0},
-    { 9,  9,  9,  9, 10},
-};
+// const double rewardSpace[2] = {-9, 9};
+
+// const string actionNames[NUM_ACTIONS] = {"M", "T", "W", "Th", "F"};
 
 class State{
 public:
+    int time;
     bool endState;
 
     int actions[NUM_AGENT];
@@ -62,11 +69,8 @@ public:
 
     string toString() const;
 
-    bool equals(const State& s) const;
-    size_t hashValue() const;
-
     friend bool operator == (const State& t, const State& s){
-        return t.equals(s);
+        return t.toString() == s.toString();
     }
 };
 

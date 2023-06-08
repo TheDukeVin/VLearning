@@ -2,6 +2,7 @@
 #include "escape.h"
 
 State::State(){
+    endState = false;
     time = 0;
     catchUsed = false;
 }
@@ -60,15 +61,5 @@ void State::makeAction(double* reward, int chanceAction){
 string State::toString() const {
     if(endState) return "End State\n";
     return "Time: " + to_string(time) + " Catch Used: " + to_string(catchUsed) + "\n";
-}
-
-bool State::equals(const State& s) const {
-    if(endState && s.endState) return true;
-    return (endState == s.endState) && (time == s.time) && (catchUsed == s.catchUsed);
-}
-
-size_t State::hashValue() const {
-    if(endState) return -1;
-    return time + catchUsed * steps;
 }
 

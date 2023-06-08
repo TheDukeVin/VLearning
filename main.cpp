@@ -1,37 +1,41 @@
 
 #include "vlearn.h"
 
+
 int main(){
     srand(time(NULL));
-    unordered_set<State, StateHash> states = all_states();
-    cout<<"Game size: "<<states.size()<<'\n';
-    cout<<states.size()<<'\n';
-    // for(auto s : all_states()){
-    //     cout<<s.toString();
-    // }
+    int start_time = time(0);
 
     VLearn VL;
-    ofstream fout("probs.out");
-    for(int i=0; i<1000000; i++){
-        VL.rollOut();
-        fout<<VL.policy[0][State()].value<<'\n';
+    unordered_set<State, StateHash> states = all_states();
+
+    if(1){ // TRAIN MODE
+    // if(0){ // TEST MODE
+        {
+            ofstream fout("log.out");
+            fout<<"Game size: "<<states.size()<<'\n';
+            fout<<"Simulating games: \n";
+        }
+
+        for(int i=0; i<1e+09; i++){
+            if(i % 1000000 == 0){
+                ofstream fout("log.out", ios::app);
+                fout<<"Iteration "<< i << " Time " << (time(0) - start_time) << '\n';
+            }
+            VL.rollOut();
+        }
+        VL.save("policy.out");
+
+        {
+            ofstream fout("log.out", ios::app);
+            fout<<"Run time: "<<(time(0) - start_time)<<'\n';
+        }
     }
-    fout<<'\n';
-
-    // for(auto s : all_states()){
-    //     cout<<"State: "<<s.toString();
-    //     for(int i=0; i<NUM_AGENT; i++){
-    //         cout<<"Agent "<<i<<" value: "<<VL.policy[i][s].value<<'\n';
-    //         cout<<"Agent "<<i<<" policy: ";
-    //         for(int j=0; j<NUM_ACTIONS; j++){
-    //             cout<<VL.policy[i][s].aggPolicy[j]<<' ';
-    //         }
-    //         cout<<'\n';
-    //     }
-    //     cout<<'\n';
-    // }
-
-    for(int i=0; i<10; i++){
-        VL.printGame();
+    else{
+        VLearn VL;
+        VL.load("policy.out");
+        for(int i=0; i<10; i++){
+            VL.printGame();
+        }
     }
 }

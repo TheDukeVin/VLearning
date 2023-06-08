@@ -8,12 +8,23 @@ g++ -std=c++11 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp escape/escape
 g++ -std=c++11 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp smat/smat.cpp
 
 g++ -std=c++11 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp chase/chase.cpp
+
+g++ -O2 -std=c++11 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp steal/steal.cpp
+
+Syncing with FASRC
+rsync -r Classic_V_Learn kevindu@login.rc.fas.harvard.edu:./MultiagentSnake
+rsync -r kevindu@login.rc.fas.harvard.edu:./MultiagentSnake/Classic_V_Learn .
+
+Running
+g++ -std=c++11 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp steal/steal.cpp && sbatch vlearn.slurm
 */
 
 // #include "matrix/matrix.h"
 // #include "escape/escape.h"
 // #include "smat/smat.h"
-#include "chase/chase.h"
+// #include "chase/chase.h"
+#include "steal/steal.h"
+#include <ctime>
 
 #ifndef vlearn_h
 #define vlearn_h
@@ -25,7 +36,7 @@ int sampleDist(double* dist, int N);
 class StateHash{
 public:
     size_t operator()(const State& s) const {
-        return s.hashValue();
+        return hash<string>{}(s.toString());
     }
 };
 
@@ -49,7 +60,7 @@ private:
         return 0.01;
     }
     double explorationRate(){
-        return 1/sqrt(TIME_HORIZON+visitCount);
+        return 0.2/sqrt(TIME_HORIZON+visitCount);
         // return 0;
     }
 
@@ -81,6 +92,9 @@ public:
     VLearn();
     void rollOut();
     void printGame();
+
+    void save(string outFile);
+    void load(string inFile);
 };
 
 #endif

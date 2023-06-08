@@ -45,17 +45,6 @@ unordered_set<State, StateHash> all_states(){
             }
             i ++;
         }
-        assert(i < pow(NUM_ACTIONS, NUM_AGENT));
-        // int numValidActions = 0;
-        // for(int i=0; i<NUM_ACTIONS; i++){
-        //     if(s.validAction(i)){
-        //         State next_s = s;
-        //         next_s.makeAction(i);
-        //         currStates.push_back(next_s);
-        //         numValidActions++;
-        //     }
-        // }
-        // assert(numValidActions > 1);
     }
     return states;
 }

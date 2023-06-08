@@ -2,6 +2,7 @@
 #include "smat.h"
 
 State::State(){
+    time = 0;
     endState = false;
 }
 
@@ -26,6 +27,7 @@ void State::makeAction(double* reward, int chanceAction){
         }
     }
     endState = true;
+    time = 1;
     reward[0] = chanceAction;
     reward[1] = 1-chanceAction;
 }
@@ -34,12 +36,3 @@ string State::toString() const {
     if(endState) return "End State\n";
     else return "Choice\n";
 }
-
-bool State::equals(const State& s) const {
-    return endState == s.endState;
-}
-
-size_t State::hashValue() const {
-    return endState;
-}
-

@@ -55,13 +55,3 @@ string State::toString() const {
     if(endState) return "End State\n";
     return "Time " + to_string(time) + " Runner " + players[0].toString() + " Chaser " + players[1].toString() + "\n";
 }
-
-bool State::equals(const State& s) const {
-    if(endState && s.endState) return true;
-    return (time == s.time) && (players[0] == s.players[0]) && (players[1] == s.players[1]);
-}
-
-size_t State::hashValue() const {
-    return hash<string>{}(toString());
-}
-
