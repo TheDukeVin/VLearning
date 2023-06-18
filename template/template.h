@@ -32,8 +32,7 @@ public:
     State();
 
     vector<int> validActions(int agentID);
-    vector<int> validChanceActions(); // reads actions
-    void makeAction(double* reward, int chanceAction = -1); // reads actions, modifies reward array.
+    void makeAction(double* reward); // reads actions, modifies reward array.
 
     string toString() const;
 

@@ -21,8 +21,8 @@ vector<int> State::validChanceActions(){
 void State::makeAction(double* reward, int chanceAction){
     time = 1;
     endState = true;
-    reward[0] = matrix[actions[0]][actions[1]];
-    reward[1] = -matrix[actions[0]][actions[1]];
+    reward[0] = matrix0[actions[0]][actions[1]];
+    reward[1] = matrix1[actions[0]][actions[1]];
 
     // Normalize reward to between 0 and 1
     for(int i=0; i<NUM_AGENT; i++){

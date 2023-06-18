@@ -1,9 +1,9 @@
 
-data <- read.delim("/Users/kevindu/Desktop/Employment/Multiagent Snake Research/V_learning/Classic_V_Learn/probs.out", sep=',', header = FALSE)
+data <- read.delim("/Users/kevindu/Desktop/Employment/Multiagent Snake Research/V_learning/Classic_V_Learn/conv.out", sep=',', header = FALSE)
 
 N = length(data[,1])
 
-true_val = c(1/111, 10/111, 100/111)
+true_val = c(1/3, 5/18, 7/18)
 
 for(i in 1:3){
   

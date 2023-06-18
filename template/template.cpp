@@ -9,13 +9,7 @@ State::State(){
 vector<int> State::validActions(int agentID){
 }
 
-vector<int> State::validChanceActions(){
-}
-
-void State::makeAction(double* reward, int chanceAction){
-    // Sample random transition if not specified
-    if(chanceAction == -1){
-    }
+void State::makeAction(double* reward){
 
     // Normalize reward to between 0 and 1
     for(int i=0; i<NUM_AGENT; i++){

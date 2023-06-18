@@ -15,7 +15,7 @@ vector<int> State::validActions(int agentID){
 }
 
 vector<int> State::validChanceActions(){
-    return vector<int>{0, 1};
+    return vector<int>{0, 1, 2, 3};
 }
 
 void State::makeAction(double* reward, int chanceAction){
@@ -25,6 +25,7 @@ void State::makeAction(double* reward, int chanceAction){
         if((double) rand() / RAND_MAX < prob){
             chanceAction = 1;
         }
+        if((double) rand() / RAND_MAX < )
     }
     endState = true;
     time = 1;

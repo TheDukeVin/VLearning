@@ -18,12 +18,20 @@ const int NUM_AGENT = 2;
 
 const int NUM_ACTIONS = 3;
 
-const int NUM_CHANCE_ACTIONS = 2;
+const int NUM_CHANCE_ACTIONS = 4;
+
+// GENERAL SUM GAME IN PROGRESS.
 
 const double reward_prob[NUM_ACTIONS][NUM_ACTIONS] = {
     {0.2, 0.0, 0.7},
     {0.4, 0.6, 0.3},
     {0.1, 0.6, 1.0}
+};
+
+const double reward_prob2[NUM_ACTIONS][NUM_ACTIONS] = {
+    {0.5, 0.8, 0.2},
+    {0.3, 0.3, 0.5},
+    {0.2, 0.2, 0.3}
 };
 
 const double rewardSpace[2] = {0, 1};

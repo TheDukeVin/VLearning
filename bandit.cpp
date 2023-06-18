@@ -35,7 +35,8 @@ void AdvBandit::update(int action, double newValue){
 
     // Update policy
     double loss = 1 - newValue / TIME_HORIZON;
-    sumLoss[action] += loss / (actionProb[action]);
+    assert(actionProb[action] > 0);
+    sumLoss[action] += loss / (actionProb[action] + er);
 
     double minLoss = 1e+10;
     for(auto a : validActions){
@@ -43,9 +44,19 @@ void AdvBandit::update(int action, double newValue){
     }
     double sum = 0;
     for(auto a : validActions){
-        actionProb[a] = exp(-lr * (sumLoss[a] - minLoss));
+        sumLoss[a] -= minLoss;
+        actionProb[a] = exp(-lr * sumLoss[a]);
         sum += actionProb[a];
     }
+    if(!(sum > 0)){
+        for(auto a : validActions){
+            cout<<sumLoss[a]<<' ';
+        }
+        cout<<'\n';
+        cout<<sum<<'\n';
+    }
+    assert(sum > 0);
+    assert(!::isnan(sum));
     for(auto a : validActions){
         actionProb[a] /= sum;
         assert(!::isnan(actionProb[a]));

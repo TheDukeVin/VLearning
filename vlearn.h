@@ -19,11 +19,11 @@ Running
 g++ -std=c++11 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp steal/steal.cpp && sbatch vlearn.slurm
 */
 
-// #include "matrix/matrix.h"
+#include "matrix/matrix.h"
 // #include "escape/escape.h"
 // #include "smat/smat.h"
 // #include "chase/chase.h"
-#include "steal/steal.h"
+// #include "steal/steal.h"
 #include <ctime>
 
 #ifndef vlearn_h
@@ -57,7 +57,7 @@ private:
 
     double learnRate(){
         // return sqrt((TIME_HORIZON+1.0)/(TIME_HORIZON+visitCount));
-        return 0.01;
+        return 0.001;
     }
     double explorationRate(){
         return 0.2/sqrt(TIME_HORIZON+visitCount);
