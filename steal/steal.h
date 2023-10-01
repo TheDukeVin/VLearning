@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -34,13 +35,15 @@ const int NUM_AGENT = 3;
 
 const int NUM_ACTIONS = NUM_AGENT + 1;
 
-const int NUM_CHANCE_ACTIONS = 27;
-
 const double rewardSpace[2] = {-0.05, 1};
 
 const string actionNames[NUM_ACTIONS] = {"Steal0", "Steal1", "Steal2", "Earn"};
 
 const int EARN_ACTION = NUM_AGENT;
+
+const double LEARN_RATE = 0.01;
+const double EXPLORATION_CONSTANT = 0.01;
+const int NUM_ROLLOUTS = 5e+08;
 
 class State{
 private:
@@ -52,16 +55,24 @@ public:
     int actions[NUM_AGENT];
 
     State();
+    State(string s);
 
     vector<int> validActions(int agentID);
-    vector<int> validChanceActions(); // reads actions
-    void makeAction(double* reward, int chanceAction = -1); // reads actions, modifies reward array.
+    void makeAction(double* reward); // reads actions, modifies reward array.
+    double endValue(int agentID);
 
     string toString() const;
 
     friend bool operator == (const State& t, const State& s){
         return t.toString() == s.toString();
     }
+
+    // OPTIONAL: to get exploitability
+    // reads actions, returns distribution of transition states and rewards.
+    // (State, probability, reward for given agentID)
+    vector<pair<State, pair<double, double> > > transitionDistribution(int agentID);
+
+    vector<pair<State, double> > initialDistribution();
 };
 
 #endif

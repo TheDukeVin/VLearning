@@ -1,17 +1,20 @@
 
 #include "vlearn.h"
 
-AdvBandit::AdvBandit(){
-    value = 0; // End state should still have value 0 for base case
-    for(int i=0; i<NUM_ACTIONS; i++){
-        aggPolicy[i] = actionProb[i] = -1;
-    }
-}
+// AdvBandit::AdvBandit(){
+//     value = 0; // End state should still have value 0 for base case
+//     for(int i=0; i<NUM_ACTIONS; i++){
+//         aggPolicy[i] = actionProb[i] = -1;
+//     }
+// }
 
 AdvBandit::AdvBandit(State s_, int ag){
     // value = 0;
-    // OPTIONAL: rescale initialized rewards to match 0 reward in the reward space
+    // rescale initialized rewards to match 0 reward in the reward space
     value = (0 - rewardSpace[0]) / (rewardSpace[1] - rewardSpace[0]) * (TIME_HORIZON - s_.time);
+    if(s_.endState){
+        value = s_.endValue(ag);
+    }
     for(int i=0; i<NUM_ACTIONS; i++){
         aggPolicy[i] = actionProb[i] = -1;
     }
@@ -26,17 +29,23 @@ AdvBandit::AdvBandit(State s_, int ag){
 }
 
 void AdvBandit::update(int action, double newValue){
+    assert(!s.endState);
     // Update value
-    double lr = learnRate();
-    double er = explorationRate();
+    double explorationRate = EXPLORATION_CONSTANT/sqrt(TIME_HORIZON+visitCount);
     visitCount ++;
-    value = (1 - lr) * value + lr * (newValue + er);
+    value = (1 - LEARN_RATE) * value + LEARN_RATE * (newValue + explorationRate);
     if(validActions.size() == 1) return;
 
     // Update policy
-    double loss = 1 - newValue / TIME_HORIZON;
-    assert(actionProb[action] > 0);
-    sumLoss[action] += loss / (actionProb[action] + er);
+    double loss = 1 - newValue / (TIME_HORIZON - s.time);
+    // if(!(actionProb[action] > 0)){
+    //     for(int i=0; i<NUM_ACTIONS; i++){
+    //         cout<<actionProb[i]<<' ';
+    //     }
+    //     cout<<'\n';
+    // }
+    // assert(actionProb[action] > 0);
+    sumLoss[action] += loss / (actionProb[action] + explorationRate);
 
     double minLoss = 1e+10;
     for(auto a : validActions){
@@ -45,18 +54,10 @@ void AdvBandit::update(int action, double newValue){
     double sum = 0;
     for(auto a : validActions){
         sumLoss[a] -= minLoss;
-        actionProb[a] = exp(-lr * sumLoss[a]);
+        actionProb[a] = exp(-LEARN_RATE * sumLoss[a]);
         sum += actionProb[a];
     }
-    if(!(sum > 0)){
-        for(auto a : validActions){
-            cout<<sumLoss[a]<<' ';
-        }
-        cout<<'\n';
-        cout<<sum<<'\n';
-    }
-    assert(sum > 0);
-    assert(!::isnan(sum));
+    assert(!::isnan(sum) && sum > 0);
     for(auto a : validActions){
         actionProb[a] /= sum;
         assert(!::isnan(actionProb[a]));

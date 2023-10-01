@@ -3,7 +3,7 @@ data <- read.delim("/Users/kevindu/Desktop/Employment/Multiagent Snake Research/
 
 N = length(data[,1])
 
-true_val = c(1/3, 5/18, 7/18)
+true_val = c(1/3, 7/18, 5/18)
 
 for(i in 1:3){
   

@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -16,11 +17,13 @@ const int NUM_AGENT = 2;
 
 const int NUM_ACTIONS = 3;
 
-const int NUM_CHANCE_ACTIONS = 4;
-
 const double rewardSpace[2] = {0, 0};
 
 const string actionNames[NUM_ACTIONS] = {"Lorem", "Ipsum"};
+
+const double LEARN_RATE = 0.001;
+const double EXPLORATION_CONSTANT = 0.05;
+const int NUM_ROLLOUTS = 5e+06;
 
 class State{
 public:
@@ -30,9 +33,11 @@ public:
     int actions[NUM_AGENT];
 
     State();
+    State(string s);
 
     vector<int> validActions(int agentID);
     void makeAction(double* reward); // reads actions, modifies reward array.
+    double endValue(int agentID);
 
     string toString() const;
 

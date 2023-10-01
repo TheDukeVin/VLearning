@@ -1,33 +1,37 @@
 
 /*
 Compilation
-g++ -std=c++11 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp matrix/matrix.cpp
+g++ -O2 -std=c++17 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp matrix/matrix.cpp
 
-g++ -std=c++11 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp escape/escape.cpp
+g++ -O2 -std=c++17 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp escape/escape.cpp
 
-g++ -std=c++11 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp smat/smat.cpp
+g++ -O2 -std=c++17 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp smat/smat.cpp
 
-g++ -std=c++11 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp chase/chase.cpp
+g++ -O2 -std=c++17 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp chase/chase.cpp
 
-g++ -O2 -std=c++11 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp steal/steal.cpp
+g++ -O2 -std=c++17 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp steal/steal.cpp
 
 Syncing with FASRC
 rsync -r Classic_V_Learn kevindu@login.rc.fas.harvard.edu:./MultiagentSnake
 rsync -r kevindu@login.rc.fas.harvard.edu:./MultiagentSnake/Classic_V_Learn .
 
 Running
-g++ -std=c++11 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp steal/steal.cpp && sbatch vlearn.slurm
+g++ -O2 -std=c++17 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp steal/steal.cpp && sbatch vlearn.slurm
 */
 
 // #include "matrix/matrix.h"
 // #include "escape/escape.h"
 // #include "smat/smat.h"
-#include "chase/chase.h"
-// #include "steal/steal.h"
+// #include "chase/chase.h"
+#include "steal/steal.h"
 #include <ctime>
 
 #ifndef vlearn_h
 #define vlearn_h
+
+#define END 0
+#define REC 1
+#define VALUE_FLAG END
 
 using namespace std;
 
@@ -42,7 +46,7 @@ public:
 
 // VLearning algorithm
 
-unordered_set<State, StateHash> all_states();
+// unordered_set<State, StateHash> all_states();
 
 class AdvBandit{
 private:
@@ -55,26 +59,13 @@ private:
     int visitCount;
     double sumLoss[NUM_ACTIONS];
 
-    double learnRate(){
-        // return sqrt((TIME_HORIZON+1.0)/(TIME_HORIZON+visitCount));
-        return 0.001;
-    }
     double explorationRate(){
-        return 0.2/sqrt(TIME_HORIZON+visitCount);
+        return EXPLORATION_CONSTANT/sqrt(TIME_HORIZON+visitCount);
         // return 0;
     }
 
-    double lossWeight(){
-        //return learnRate() / prod_learn;
-        return 1;
-    }
-    double sampleSkew(){
-        // return 1/sqrt(TIME_HORIZON+visitCount);
-        return 0;
-    }
-
 public:
-    AdvBandit();
+    AdvBandit(){};
     AdvBandit(State s_, int ag);
 
     double value;
@@ -89,7 +80,7 @@ class VLearn{
 public:
     unordered_map<State, AdvBandit, StateHash> policy[NUM_AGENT];
 
-    VLearn();
+    // VLearn(){};
     void rollOut();
     void printGame();
 

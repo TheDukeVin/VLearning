@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -12,31 +13,57 @@ using namespace std;
 
 // Stochastic Matrix game
 
+// ############################# PRISONERS DILLEMA #############################
+
 const int TIME_HORIZON = 1;
 
 const int NUM_AGENT = 2;
 
-const int NUM_ACTIONS = 3;
+const int NUM_ACTIONS = 2;
 
-const int NUM_CHANCE_ACTIONS = 4;
-
-// GENERAL SUM GAME IN PROGRESS.
-
-const double reward_prob[NUM_ACTIONS][NUM_ACTIONS] = {
-    {0.2, 0.0, 0.7},
-    {0.4, 0.6, 0.3},
-    {0.1, 0.6, 1.0}
+const double reward_prob0[NUM_ACTIONS][NUM_ACTIONS] = {
+    {0.5, 0.0},
+    {1.0, 0.2}
 };
 
-const double reward_prob2[NUM_ACTIONS][NUM_ACTIONS] = {
-    {0.5, 0.8, 0.2},
-    {0.3, 0.3, 0.5},
-    {0.2, 0.2, 0.3}
+const double reward_prob1[NUM_ACTIONS][NUM_ACTIONS] = {
+    {0.5, 1.0},
+    {0.0, 0.2}
 };
 
 const double rewardSpace[2] = {0, 1};
 
-const string actionNames[NUM_ACTIONS] = {"0", "1", "2"};
+const string actionNames[NUM_ACTIONS] = {"COOPERATE", "BETRAY"};
+
+const double LEARN_RATE = 0.001;
+const double EXPLORATION_CONSTANT = 0.05;
+const int NUM_ROLLOUTS = 5e+06;
+
+// ############################# CHEATING #############################
+
+// const int TIME_HORIZON = 1;
+
+// const int NUM_AGENT = 2;
+
+// const int NUM_ACTIONS = 2;
+
+// const double reward_prob0[NUM_ACTIONS][NUM_ACTIONS] = {
+//     {0.9, 0.9},
+//     {1.0, 0.0}
+// };
+
+// const double reward_prob1[NUM_ACTIONS][NUM_ACTIONS] = {
+//     {1.0, 0.9},
+//     {0.0, 0.9}
+// };
+
+// const double rewardSpace[2] = {0, 1};
+
+// const string actionNames[NUM_ACTIONS] = {"Relax", "Observe"};
+
+// const double LEARN_RATE = 0.001;
+// const double EXPLORATION_CONSTANT = 0.05;
+// const int NUM_ROLLOUTS = 5e+06;
 
 class State{
 public:
@@ -46,17 +73,23 @@ public:
     int actions[NUM_AGENT];
 
     State();
+    State(string s);
 
-    // bool validAction(int action, int playerID);
     vector<int> validActions(int agentID);
-    vector<int> validChanceActions(); // reads actions
-    void makeAction(double* reward, int chanceAction = -1); // reads actions, modifies reward array.
+    void makeAction(double* reward); // reads actions, modifies reward array.
 
     string toString() const;
 
     friend bool operator == (const State& t, const State& s){
         return t.toString() == s.toString();
     }
+
+    // OPTIONAL: to get exploitability
+    // reads actions, returns distribution of transition states and rewards.
+    // (State, probability, reward for given agentID)
+    vector<pair<State, pair<double, double> > > transitionDistribution(int agentID);
+
+    vector<pair<State, double> > initialDistribution();
 };
 
 #endif

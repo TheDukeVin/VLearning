@@ -14,11 +14,7 @@ vector<int> State::validActions(int agentID){
     return vector<int>{0};
 }
 
-vector<int> State::validChanceActions(){
-    return vector<int>{0};
-}
-
-void State::makeAction(double* reward, int chanceAction){
+void State::makeAction(double* reward){
     if(actions[0] == 1){
         if(actions[1] == 1){
             reward[0] = catReward;
@@ -49,17 +45,36 @@ void State::makeAction(double* reward, int chanceAction){
         reward[i] = (reward[i] - rewardSpace[0]) / (rewardSpace[1] - rewardSpace[0]);
         assert(0 <= reward[i] && reward[i] <= 1);
     }
+}
 
-    // If ending the game early, add extra rewards immediately
-    if(endState){
-        for(int i=0; i<NUM_AGENT; i++){
-            reward[i] += (0 - rewardSpace[0]) / (rewardSpace[1] - rewardSpace[0]) * (steps - time);
-        }
-    }
+double State::endValue(int agentID){
+    return (0 - rewardSpace[0]) / (rewardSpace[1] - rewardSpace[0]) * (TIME_HORIZON - time);
 }
 
 string State::toString() const {
-    if(endState) return "End State\n";
-    return "Time: " + to_string(time) + " Catch Used: " + to_string(catchUsed) + "\n";
+    if(endState) return "End State Time: " + to_string(time);
+    return "Time: " + to_string(time) + " Catch Used: " + to_string(catchUsed);
 }
 
+State::State(string s){
+    istringstream iss(s);
+    string hold;
+    if(s.substr(0, 9) == "End State"){
+        endState = true;
+        iss >> hold >> hold >> hold >> time;
+        return;
+    }
+    endState = false;
+    iss >> hold >> time >> hold >> hold >> catchUsed;
+}
+
+vector<pair<State, pair<double, double> > > State::transitionDistribution(int agentID) const{
+    double reward[2];
+    State s = *this;
+    s.makeAction(reward);
+    return vector<pair<State, pair<double, double> > >{make_pair(s, make_pair(1, reward[agentID]))};
+}
+
+vector<pair<State, double> > State::initialDistribution(){
+    return vector<pair<State, double> >{make_pair(State("Time: 0 Catch Used: 0"), 1)};
+}

@@ -18,12 +18,30 @@ void State::makeAction(double* reward){
     }
 
     // If ending the game early, add extra rewards immediately
-    if(endState){
-        for(int i=0; i<NUM_AGENT; i++){
-            reward[i] += (0 - rewardSpace[0]) / (rewardSpace[1] - rewardSpace[0]) * (steps - time);
-        }
-    }
+    // if(endState){
+    //     for(int i=0; i<NUM_AGENT; i++){
+    //         reward[i] += (0 - rewardSpace[0]) / (rewardSpace[1] - rewardSpace[0]) * (steps - time);
+    //     }
+    // }
+}
+
+double State::endValue(int agentID){
+    return (0 - rewardSpace[0]) / (rewardSpace[1] - rewardSpace[0]) * (TIME_HORIZON - time);
 }
 
 string State::toString() const {
+    if(endState){
+        return "End State";
+    }
+}
+
+State::State(string s){
+    istringstream iss(s);
+    string hold;
+    if(s.substr(0, 9) == "End State"){
+        endState = true;
+        iss >> hold >> hold >> hold >> time;
+        return;
+    }
+    endState = false;
 }

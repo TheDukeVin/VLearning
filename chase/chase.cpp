@@ -19,21 +19,20 @@ vector<int> State::validActions(int agentID){
     return actions;
 }
 
-vector<int> State::validChanceActions(){
-    return vector<int>{0, 1, 2, 3};
+double State::endValue(int agentID){
+    if(agentID == 0){
+        return 0;
+    }
+    else{
+        return TIME_HORIZON - time;
+    }
 }
 
-void State::makeAction(double* reward, int chanceAction){
-    // Sample random transition if not specified
-    if(chanceAction == -1){
-        chanceAction = rand() % 4;
-    }
-    int move0 = chanceAction / 2;
-    int move1 = chanceAction % 2;
-    if(move0){
+void State::makeAction(double* reward){
+    if(rand() % 2 == 0){
         players[0] = players[0].shift(actions[0]);
     }
-    if(move1){
+    if(rand() % 2 == 0){
         players[1] = players[1].shift(actions[1]);
     }
     if(players[0] == players[1]){
@@ -52,6 +51,53 @@ void State::makeAction(double* reward, int chanceAction){
 }
 
 string State::toString() const {
-    if(endState) return "End State\n";
-    return "Time " + to_string(time) + " Runner " + players[0].toString() + " Chaser " + players[1].toString() + "\n";
+    if(endState) return "End State Time: " + to_string(time);
+    return "Time " + to_string(time) + " Runner " + players[0].toString() + " Chaser " + players[1].toString();
+}
+
+State::State(string s){
+    istringstream iss(s);
+    string hold;
+    if(s.substr(0, 9) == "End State"){
+        endState = true;
+        iss >> hold >> hold >> hold >> time;
+        return;
+    }
+    endState = false;
+    iss >> hold >> time 
+        >> hold >> players[0].r >> players[0].c 
+        >> hold >> players[1].r >> players[1].c;
+}
+
+vector<pair<State, pair<double, double> > > State::transitionDistribution(int agentID){
+    vector<pair<State, pair<double, double> > > possibilities;
+    double reward[2];
+    for(int c=0; c<4; c++){
+        State s = *this;
+        if(c % 2 == 0){
+            s.players[0] = s.players[0].shift(actions[0]);
+        }
+        if(c / 2 == 0){
+            s.players[1] = s.players[1].shift(actions[1]);
+        }
+        if(s.players[0] == s.players[1]){
+            s.endState = true;
+            reward[0] = 0;
+            reward[1] = 1;
+        }
+        else{
+            reward[0] = 1;
+            reward[1] = 0;
+        }
+        s.time ++;
+        if(s.time == TIME_HORIZON){
+            s.endState = true;
+        }
+        possibilities.push_back(make_pair(s, make_pair(1.0 / 4, reward[agentID])));
+    }
+    return possibilities;
+}
+
+vector<pair<State, double> > State::initialDistribution(){
+    return vector<pair<State, double> >{make_pair(State(), 1)};
 }

@@ -14,26 +14,46 @@ vector<int> State::validActions(int agentID){
     return actions;
 }
 
-vector<int> State::validChanceActions(){
-    return vector<int>{0, 1, 2, 3};
-}
-
-void State::makeAction(double* reward, int chanceAction){
-    if(chanceAction == -1){
-        double prob = reward_prob[actions[0]][actions[1]];
-        chanceAction = 0;
-        if((double) rand() / RAND_MAX < prob){
-            chanceAction = 1;
-        }
-        if((double) rand() / RAND_MAX < )
-    }
+void State::makeAction(double* reward){
     endState = true;
     time = 1;
-    reward[0] = chanceAction;
-    reward[1] = 1-chanceAction;
+    reward[0] = (double) rand() / RAND_MAX < reward_prob0[actions[0]][actions[1]];
+    reward[1] = (double) rand() / RAND_MAX < reward_prob1[actions[0]][actions[1]];
 }
 
 string State::toString() const {
-    if(endState) return "End State\n";
-    else return "Choice\n";
+    if(endState) return "End State";
+    else return "Choice";
+}
+
+State::State(string s){
+    if(s == "End State"){
+        endState = true;
+        time = 1;
+        return;
+    }
+    if(s == "Choice"){
+        endState = false;
+        time = 0;
+        return;
+    }
+    assert(false);
+}
+
+vector<pair<State, pair<double, double> > > State::transitionDistribution(int agentID){
+    double rewardProb;
+    if(agentID == 0){
+        rewardProb = reward_prob0[actions[0]][actions[1]];
+    }
+    else{
+        rewardProb = reward_prob1[actions[0]][actions[1]];
+    }
+    return vector<pair<State, pair<double, double> > >{
+        make_pair(State("End State"), make_pair(rewardProb, 1)),
+        make_pair(State("End State"), make_pair(1-rewardProb, 0))
+    };
+}
+
+vector<pair<State, double> > State::initialDistribution(){
+    return vector<pair<State, double> >{make_pair(State("Choice"), 1)};
 }
