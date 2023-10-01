@@ -19,10 +19,10 @@ Running
 g++ -std=c++11 main.cpp common.cpp vlearn.cpp bandit.cpp state.cpp steal/steal.cpp && sbatch vlearn.slurm
 */
 
-#include "matrix/matrix.h"
+// #include "matrix/matrix.h"
 // #include "escape/escape.h"
 // #include "smat/smat.h"
-// #include "chase/chase.h"
+#include "chase/chase.h"
 // #include "steal/steal.h"
 #include <ctime>
 
